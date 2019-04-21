@@ -48,6 +48,7 @@ namespace DevChatter.DevStreams.Infra.Twitch
             try
             {
                 string url = $"{_twitchSettings.BaseApiUrl}/users?login={channelName}";
+                
                 string jsonResult = await Get(url);
 
                 UserResult result = JsonConvert.DeserializeObject<UserResult>(jsonResult);

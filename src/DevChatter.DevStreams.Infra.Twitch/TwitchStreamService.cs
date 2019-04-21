@@ -54,7 +54,6 @@ namespace DevChatter.DevStreams.Infra.Twitch
 
             var url = $"{_twitchSettings.BaseApiUrl}/streams?user_id={twitchId}";
             var jsonResult = await Get(url);
-
             var result = JsonConvert.DeserializeObject<StreamResult>(jsonResult);
 
             return new ChannelLiveState{TwitchId = twitchId, IsLive = result.Data.Any()};

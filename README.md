@@ -15,9 +15,29 @@
   <a href="#license">License</a>
 </p>
 
-## Getting Started
+## Project Description
 
 This project is a designed to provide people with information about software development streams on any streaming platform. It will help viewers find streams to watch, and will help streamers schedule their streams effectively. We want to show data in a calendar interface to allow users to see what streams are happening in the future, in addition to who is live right now.
+
+## Getting Started
+
+To get started, download the project through github. Download a database software service as well (SQL Server, SQL Express, etc. you choose). Open the visual studio project. Connect your database solution to the website solution. Secrets will also have to be enabled for the API to call correctly - this is done in windows by typing "dot-net user-secrets set [secretsID]:[secretsvalue] --project [directory]". Then navigate to the file created in [directory] and enter the information as follows:
+
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "EnterServerConnectionString"
+  },
+  "TwitchSettings": {
+    "ClientId": "EnterClientIdFromTwitch",
+    "BaseApiUrl": "https://api.twitch.tv/helix"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
 
 Interested in joining a growing developer community? Connect with us on Discord! https://discord.gg/aQry9jG
 
