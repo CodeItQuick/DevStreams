@@ -52,6 +52,20 @@ namespace DevChatter.DevStreams.Web.Pages
         public async Task<IActionResult> OnGetLuckyAsync()
         {
             List<Channel> channels = await _repo.GetAll<Channel>();
+            List<TwitchChannel> twitchChannels = await _repo.GetAll<TwitchChannel>();
+
+            foreach (TwitchChannel _twitchChannel in twitchChannels) { 
+                foreach (Channel channel in channels)
+                {
+                    if (channel.Id == _twitchChannel.ChannelId)
+                    {
+                        channel.Twitch = new TwitchChannel()
+                        {
+                            TwitchId = _twitchChannel.TwitchId
+                        };
+                    }      
+                }
+            }
             
             List<string> twitchIds = channels.Select(x => x?.Twitch?.TwitchId)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -60,12 +74,23 @@ namespace DevChatter.DevStreams.Web.Pages
                 .Where(x => x.IsLive)
                 .Select(x => x.TwitchId)
                 .ToList();
+
+            liveChannelIds.TrimExcess();
             
-            var result = new Result();
+            var strLiveChannelIds = "empty";
 
             if (liveChannelIds.Any())
             {
-                result.ChannelName = liveChannelIds.PickOneRandomElement();
+                strLiveChannelIds = liveChannelIds.PickOneRandomElement();
+            }
+
+            var liveChannelIdsPickOne = twitchChannels.Where(x => x.TwitchId == strLiveChannelIds);
+
+            var result = new Result();
+
+            if (liveChannelIdsPickOne.Any())
+            {
+                result.ChannelName = liveChannelIdsPickOne.First().TwitchName;
             }
             else
             {
