@@ -54,18 +54,39 @@ namespace DevChatter.DevStreams.Web.Pages
             List<Channel> channels = await _repo.GetAll<Channel>();
             List<TwitchChannel> twitchChannels = await _repo.GetAll<TwitchChannel>();
 
-            foreach (TwitchChannel _twitchChannel in twitchChannels) { 
-                foreach (Channel channel in channels)
+            foreach (TwitchChannel _twitchChannel in twitchChannels) {
+
+                var insertedTwitchChannel = twitchChannels
+                    .Where(x => x.TwitchId == _twitchChannel.TwitchId);
+
+                var insertedTwitchChannelId = insertedTwitchChannel
+                    .Select(x => x.ChannelId)
+                    .ToList();
+
+                insertedTwitchChannelId.TrimExcess();
+
+                var insertIntoChannel = channels
+                    .Where(x => x.Id == insertedTwitchChannelId.First())
+                    .ToList();
+
+                insertIntoChannel.TrimExcess();
+
+                var channelInsert = insertIntoChannel
+                    .ToList()
+                    .First();
+
+                var twitchID = insertedTwitchChannel
+                    .Select(x => x.TwitchId)
+                    .ToList();
+
+                twitchID.TrimExcess();
+
+                channelInsert.Twitch = new TwitchChannel()
                 {
-                    if (channel.Id == _twitchChannel.ChannelId)
-                    {
-                        channel.Twitch = new TwitchChannel()
-                        {
-                            TwitchId = _twitchChannel.TwitchId
-                        };
-                    }      
-                }
+                    TwitchId = insertedTwitchChannel.ToList().First().TwitchId
+                };
             }
+
             
             List<string> twitchIds = channels.Select(x => x?.Twitch?.TwitchId)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
