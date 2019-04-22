@@ -22,27 +22,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NodaTime;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DevChatter.DevStreams.Core.Twitch;
 using DevChatter.DevStreams.Web.Caching;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace DevChatter.DevStreams.Web
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .AddUserSecrets<Startup>()
-                .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
+            Configuration = configuration;
             _env = env;
         }
 
@@ -58,15 +50,13 @@ namespace DevChatter.DevStreams.Web
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            
+
             services.Configure<DatabaseSettings>(
                 Configuration.GetSection("ConnectionStrings"));
-            
-            services
-                .Configure<TwitchSettings>(
-                Configuration.GetSection("TwitchSettings")
-                ).AddOptions();
-            
+
+            services.Configure<TwitchSettings>(
+                Configuration.GetSection("TwitchSettings"));
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -143,7 +133,6 @@ namespace DevChatter.DevStreams.Web
                 options.AddPolicy("RequireAdministratorRole",
                     policy => policy.RequireRole("Administrator"));
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

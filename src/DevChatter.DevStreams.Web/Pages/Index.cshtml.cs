@@ -52,6 +52,7 @@ namespace DevChatter.DevStreams.Web.Pages
         public async Task<IActionResult> OnGetLuckyAsync()
         {
             List<Channel> channels = await _repo.GetAll<Channel>();
+<<<<<<< HEAD
             List<TwitchChannel> twitchChannels = await _repo.GetAll<TwitchChannel>();
 
             foreach (TwitchChannel _twitchChannel in twitchChannels) {
@@ -88,6 +89,8 @@ namespace DevChatter.DevStreams.Web.Pages
             }
 
             
+=======
+>>>>>>> parent of 6e7e9e4... Getting Started Explanation and Secrets Enablement
             List<string> twitchIds = channels.Select(x => x?.Twitch?.TwitchId)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .ToList();
@@ -95,10 +98,14 @@ namespace DevChatter.DevStreams.Web.Pages
                 .Where(x => x.IsLive)
                 .Select(x => x.TwitchId)
                 .ToList();
+<<<<<<< HEAD
 
             liveChannelIds.TrimExcess();
             
             var strLiveChannelIds = "empty";
+=======
+            var result = new Result();
+>>>>>>> parent of 6e7e9e4... Getting Started Explanation and Secrets Enablement
 
             if (liveChannelIds.Any())
             {

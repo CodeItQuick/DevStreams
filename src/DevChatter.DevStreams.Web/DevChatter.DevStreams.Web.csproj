@@ -27,5 +27,4 @@
     <ProjectReference Include="..\DevChatter.DevStreams.Infra.Twitch\DevChatter.DevStreams.Infra.Twitch.csproj" />
   </ItemGroup>
 
-
 </Project>
