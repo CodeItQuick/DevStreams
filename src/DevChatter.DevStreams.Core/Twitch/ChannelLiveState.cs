@@ -1,4 +1,6 @@
-﻿namespace DevChatter.DevStreams.Core.Twitch
+﻿using System;
+
+namespace DevChatter.DevStreams.Core.Twitch
 {
     public class ChannelLiveState
     {

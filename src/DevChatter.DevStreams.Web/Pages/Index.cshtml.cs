@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace DevChatter.DevStreams.Web.Pages
 {
@@ -20,6 +21,7 @@ namespace DevChatter.DevStreams.Web.Pages
         {
             _repo = repo;
             _twitchService = twitchService;
+
         }
 
         public List<ChannelIndexModel> NewlyAddedChannels { get; set; }
@@ -51,74 +53,26 @@ namespace DevChatter.DevStreams.Web.Pages
 
         public async Task<IActionResult> OnGetLuckyAsync()
         {
-            List<Channel> channels = await _repo.GetAll<Channel>();
-<<<<<<< HEAD
-            List<TwitchChannel> twitchChannels = await _repo.GetAll<TwitchChannel>();
+            List<Channel> channels = await _repo.GetAllChannelInfo();
 
-            foreach (TwitchChannel _twitchChannel in twitchChannels) {
-
-                var insertedTwitchChannel = twitchChannels
-                    .Where(x => x.TwitchId == _twitchChannel.TwitchId);
-
-                var insertedTwitchChannelId = insertedTwitchChannel
-                    .Select(x => x.ChannelId)
-                    .ToList();
-
-                insertedTwitchChannelId.TrimExcess();
-
-                var insertIntoChannel = channels
-                    .Where(x => x.Id == insertedTwitchChannelId.First())
-                    .ToList();
-
-                insertIntoChannel.TrimExcess();
-
-                var channelInsert = insertIntoChannel
-                    .ToList()
-                    .First();
-
-                var twitchID = insertedTwitchChannel
-                    .Select(x => x.TwitchId)
-                    .ToList();
-
-                twitchID.TrimExcess();
-
-                channelInsert.Twitch = new TwitchChannel()
-                {
-                    TwitchId = insertedTwitchChannel.ToList().First().TwitchId
-                };
-            }
-
-            
-=======
->>>>>>> parent of 6e7e9e4... Getting Started Explanation and Secrets Enablement
             List<string> twitchIds = channels.Select(x => x?.Twitch?.TwitchId)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .ToList();
-            var liveChannelIds = (await _twitchService.GetChannelLiveStates(twitchIds))
+
+            var liveTwitchId = (await _twitchService.GetChannelLiveStates(twitchIds))
                 .Where(x => x.IsLive)
                 .Select(x => x.TwitchId)
-                .ToList();
-<<<<<<< HEAD
+                .ToList().PickOneRandomElement();
 
-            liveChannelIds.TrimExcess();
-            
-            var strLiveChannelIds = "empty";
-=======
-            var result = new Result();
->>>>>>> parent of 6e7e9e4... Getting Started Explanation and Secrets Enablement
+            var liveChannel = channels
+                .Where(x => x?.Twitch?.TwitchId == liveTwitchId)
+                .Select(x => x?.Name);
 
-            if (liveChannelIds.Any())
+            var result = new Result(); ;
+
+            if (liveChannel.Any())
             {
-                strLiveChannelIds = liveChannelIds.PickOneRandomElement();
-            }
-
-            var liveChannelIdsPickOne = twitchChannels.Where(x => x.TwitchId == strLiveChannelIds);
-
-            var result = new Result();
-
-            if (liveChannelIdsPickOne.Any())
-            {
-                result.ChannelName = liveChannelIdsPickOne.First().TwitchName;
+                result.ChannelName = liveChannel.First();
             }
             else
             {

@@ -3,6 +3,7 @@ using DevChatter.DevStreams.Core.Data;
 using DevChatter.DevStreams.Core.Model;
 using DevChatter.DevStreams.Core.Settings;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -47,6 +48,36 @@ namespace DevChatter.DevStreams.Infra.Dapper
             {
                 return (await connection.QueryAsync<T>(sql)).ToList();
             }
+        }
+        
+        /// <summary>
+        /// Returns all the channel data for a channel object.
+        /// </summary>
+        /// <returns>All Channel Info in a List<Channel> Object </Channel></returns>
+        public async Task<List<Channel>> GetAllChannelInfo()
+        {
+            string sql = "SELECT * FROM Channels;";
+            string sql2 = "SELECT * FROM TwitchChannels;";
+
+            string combinedSQL = sql + sql2;
+
+            using (IDbConnection connection = new SqlConnection(_dbSettings.DefaultConnection))
+            {
+                var dbQuery = await connection.QueryMultipleAsync(combinedSQL);
+                List<Channel> channels = dbQuery.Read<Channel>().ToList();
+                var twitchChannels = dbQuery.Read<TwitchChannel>();
+
+                foreach (var channel in channels)
+                {
+                    if (twitchChannels.Where(x => x?.ChannelId == channel?.Id).Any())
+                    {
+                        channel.Twitch = twitchChannels.Where(x => x?.ChannelId == channel?.Id).First();
+                    }
+                }
+                
+                return channels;
+            }
+
         }
 
         /// <summary>

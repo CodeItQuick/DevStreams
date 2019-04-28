@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DevChatter.DevStreams.Core.Model;
 
 namespace DevChatter.DevStreams.Infra.Twitch
 {
@@ -37,15 +38,24 @@ namespace DevChatter.DevStreams.Infra.Twitch
 
             var result = JsonConvert.DeserializeObject<StreamResult>(jsonResult);
 
-            var liveChannels = result.Data.Where(x => x.Type == "live").ToList();
+            var liveChannels = result.Data.ToList();
 
-            return twitchIds
-                .Select(twitchId => new ChannelLiveState
-                {
-                    TwitchId = twitchId,
-                    IsLive = liveChannels.Any(x => x.User_id == twitchId)
-                })
-                .ToList();
+            var returnStat = new List<ChannelLiveState>();
+
+            if (twitchIds.Any())
+            {
+                returnStat = twitchIds
+                    .Select(twitchId => new ChannelLiveState
+                    {
+                        TwitchId = twitchId,
+                        IsLive = liveChannels.Any(x => x.User_id == twitchId),
+                        startedAt = result.Data.Where(x => x.User_id == twitchId).Select(x => x.Started_at.ToUniversalTime()).DefaultIfEmpty().First(),
+                        viewerCount = result.Data.Where(x => x.User_id == twitchId).Select(x => x.Viewer_count).DefaultIfEmpty().First()
+
+                    })
+                    .ToList();
+            }
+            return returnStat;
         }
 
         public async Task<ChannelLiveState> IsLive(string twitchId)
@@ -70,5 +80,7 @@ namespace DevChatter.DevStreams.Infra.Twitch
                 return result;
             }
         }
+        
     }
+
 }
